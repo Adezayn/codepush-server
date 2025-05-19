@@ -133,6 +133,7 @@ class AzureStorage {
     _setupPromise;
     constructor(accountName, accountKey) {
         shortid.characters("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-");
+        console.log(accountKey, "==keyandname==", accountName)
         this._setupPromise = this.setup(accountName, accountKey);
     }
     reinitialize(accountName, accountKey) {
@@ -715,6 +716,7 @@ class AzureStorage {
         let tableServiceClient;
         let tableClient;
         let blobServiceClient;
+        console.log(process.env.EMULATED, "====process.env.EMULATED====")
         if (process.env.EMULATED === "true") {
             console.log("inside setup emulated", process.env.EMULATED);
 
