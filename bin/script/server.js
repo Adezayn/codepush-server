@@ -11,7 +11,7 @@ defaultServer.start(function (err, app) {
     const defaultPort = httpsEnabled ? 8443 : 3000;
     const port = Number(process.env.API_PORT) || Number(process.env.PORT) || defaultPort;
     // Use environment variable for server URL
-    const serverUrl = process.env.SERVER_URL || `https://localhost:${port}`; // Default to localhost if not set
+    const serverUrl = process.env.SERVER_URL; // Default to localhost if not set
     console.log('CodePush Server URL:', process.env.SERVER_URL);
     let server;
     if (httpsEnabled) {
