@@ -715,7 +715,7 @@ class AzureStorage {
         let tableServiceClient;
         let tableClient;
         let blobServiceClient;
-        if (process.env.EMULATED) {
+        if (process.env.EMULATED === "true") {
             const devConnectionString = "UseDevelopmentStorage=true";
             tableServiceClient = data_tables_1.TableServiceClient.fromConnectionString(devConnectionString);
             tableClient = data_tables_1.TableClient.fromConnectionString(devConnectionString, AzureStorage.TABLE_NAME);
