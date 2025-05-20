@@ -50,6 +50,9 @@ async function start(done, useJsonStorage) {
   
       const app = express();
       // [ .. your existing middleware + route setup .. ]
+      app.get("/", (req, res) => {
+              res.send("Welcome to the CodePush REST API!");
+            });
       app.get("/health", (req, res) => res.send("OK"));
   
       if (isKeyVaultConfigured) {
