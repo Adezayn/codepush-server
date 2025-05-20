@@ -104,6 +104,7 @@ function start(done, useJsonStorage) {
         app.get("/", (req, res, next) => {
             res.send("Welcome to the CodePush REST API!");
         });
+        app.get("/health", (req, res) => res.send("OK"));
         app.set("etag", false);
         app.set("views", __dirname + "/views");
         app.set("view engine", "ejs");
