@@ -47,7 +47,7 @@ function storageTests(StorageType, disablePersistence) {
                     .reinitialize("wrongaccount", "wrongkey")
                     .then(failOnCallSucceeded, 
                 /*returnedUnhealthy*/ () => {
-                    if (!process.env.EMULATED && process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_ACCESS_KEY) {
+                    if (process.env.EMULATED === "false" && process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_ACCESS_KEY) {
                         return azureStorage.reinitialize(process.env.AZURE_STORAGE_ACCOUNT, process.env.AZURE_STORAGE_ACCESS_KEY);
                     }
                     else {
