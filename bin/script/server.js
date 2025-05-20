@@ -20,9 +20,9 @@ defaultServer.start(function (err, app) {
         };
         server = https.createServer(options, app).listen(port, function () {
             console.log(`API host listening at ${serverUrl}`);
-            console.log('CodePush Server URL:', process.env.SERVER_URL);
-            console.log('process.env.EMULATED:', process.env.EMULATED);
-            console.log('AZURE_STORAGE_ACCOUNT:', process.env.AZURE_STORAGE_ACCOUNT);
+            console.log(`CodePush Server URL: ${process.env.SERVER_URL}`);
+            console.log(`process.env.EMULATED: ${process.env.EMULATED}`);
+            console.log(`AZURE_STORAGE_ACCOUNT: ${process.env.AZURE_STORAGE_ACCOUNT}`);
         });
 
     }
