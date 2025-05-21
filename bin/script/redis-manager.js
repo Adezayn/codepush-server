@@ -123,9 +123,8 @@ class RedisManager {
             this._promisifiedMetricsClient = new PromisifiedRedisClient(this._metricsClient);
     
             this._setupMetricsClientPromise = this._promisifiedMetricsClient
-                .select(RedisManager.METRICS_DB)
-                .then(() => this._promisifiedMetricsClient.set("health", "health"))
-                .catch(console.error);
+            .set("metrics:health", "healthy")
+            .catch(console.error);
         } else {
             console.warn("No REDIS_HOST or REDIS_PORT environment variable configured.");
         }
