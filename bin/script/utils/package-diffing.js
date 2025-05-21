@@ -292,7 +292,7 @@ class PackageDiffer {
         return isMatchingAppVersion;
     }
     static get WORK_DIRECTORY_PATH() {
-        const path = env.getTempDirectory();
+        const path = '/tmp/package-diff';
         if (!path) {
             throw new Error("env.getTempDirectory() returned undefined");
         }
