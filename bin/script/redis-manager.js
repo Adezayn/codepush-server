@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RedisManager = exports.Utilities = exports.DOWNLOADED = exports.ACTIVE = exports.DEPLOYMENT_FAILED = exports.DEPLOYMENT_SUCCEEDED = void 0;
 const assert = require("assert");
 const q = require("q");
-const redis = require("redis");
+const Redis = require("ioredis");
 exports.DEPLOYMENT_SUCCEEDED = "DeploymentSucceeded";
 exports.DEPLOYMENT_FAILED = "DeploymentFailed";
 exports.ACTIVE = "Active";
@@ -85,17 +85,42 @@ class RedisManager {
     _setupMetricsClientPromise;
     constructor() {
         if (process.env.REDIS_HOST && process.env.REDIS_PORT) {
-            const redisConfig = {
+            // const redisConfig = {
+            //     host: process.env.REDIS_HOST,
+            //     port: process.env.REDIS_PORT,
+            //     auth_pass: process.env.REDIS_KEY,
+            //     tls: {
+            //         // Note: Node defaults CA's to those trusted by Mozilla
+            //         rejectUnauthorized: true,
+            //     },
+            // };
+            // this._opsClient = redis.createClient(redisConfig);
+            // this._metricsClient = redis.createClient(redisConfig);
+
+            const redisOptions = {
                 host: process.env.REDIS_HOST,
-                port: process.env.REDIS_PORT,
-                auth_pass: process.env.REDIS_KEY,
+                port: parseInt(process.env.REDIS_PORT),
+                password: process.env.REDIS_KEY,
                 tls: {
-                    // Note: Node defaults CA's to those trusted by Mozilla
-                    rejectUnauthorized: true,
+                    rejectUnauthorized: true
                 },
+                // Cluster-specific options
+                showFriendlyErrorStack: true,
+                enableReadyCheck: true,
+                scaleReads: 'slave'
             };
-            this._opsClient = redis.createClient(redisConfig);
-            this._metricsClient = redis.createClient(redisConfig);
+
+            // For cluster mode
+            this._opsClient = new Redis.Cluster([redisOptions], {
+                redisOptions: redisOptions,
+                slotsRefreshTimeout: 2000,
+                dnsLookup: (address, callback) => callback(null, address)
+            });
+
+            // Metrics client can remain non-clustered if using a different DB
+            this._metricsClient = new Redis(redisOptions);
+
+
             this._opsClient.on("error", (err) => {
                 console.error(err);
             });

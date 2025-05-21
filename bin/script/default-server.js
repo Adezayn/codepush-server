@@ -54,6 +54,7 @@ async function start(done, useJsonStorage) {
               res.send("Welcome to the CodePush REST API!");
             });
       app.get("/health", (req, res) => res.send("OK"));
+      app.set("trust proxy", true);
   
       if (isKeyVaultConfigured) {
         setInterval(() => {
