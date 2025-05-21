@@ -83,8 +83,16 @@ class RedisManager {
     _metricsClient;
     _promisifiedMetricsClient;
     _setupMetricsClientPromise;
+    
     constructor() {
         if (process.env.REDIS_HOST && process.env.REDIS_PORT) {
+            const redisNodes = [
+                {
+                    host: process.env.REDIS_HOST,
+                    port: parseInt(process.env.REDIS_PORT)
+                }
+            ];
+    
             const redisOptions = {
                 password: process.env.REDIS_KEY,
                 tls: {
@@ -95,27 +103,17 @@ class RedisManager {
                 scaleReads: 'slave'
             };
     
-            const clusterNodes = [
-                {
-                    host: process.env.REDIS_HOST,
-                    port: parseInt(process.env.REDIS_PORT)
-                }
-            ];
-    
-            this._opsClient = new Redis.Cluster(clusterNodes, {
+            this._opsClient = new Redis.Cluster(redisNodes, {
                 redisOptions,
                 slotsRefreshTimeout: 2000,
                 dnsLookup: (address, callback) => callback(null, address)
             });
     
-            // Optional: metrics client (standalone if not clustered)
-            this._metricsClient = new Redis({
-                host: process.env.REDIS_HOST,
-                port: parseInt(process.env.REDIS_PORT),
-                password: process.env.REDIS_KEY,
-                tls: {
-                    rejectUnauthorized: true
-                }
+            // 👉 Make metrics client also a cluster client
+            this._metricsClient = new Redis.Cluster(redisNodes, {
+                redisOptions,
+                slotsRefreshTimeout: 2000,
+                dnsLookup: (address, callback) => callback(null, address)
             });
     
             this._opsClient.on("error", console.error);
@@ -126,7 +124,8 @@ class RedisManager {
     
             this._setupMetricsClientPromise = this._promisifiedMetricsClient
                 .select(RedisManager.METRICS_DB)
-                .then(() => this._promisifiedMetricsClient.set("health", "health"));
+                .then(() => this._promisifiedMetricsClient.set("health", "health"))
+                .catch(console.error);
         } else {
             console.warn("No REDIS_HOST or REDIS_PORT environment variable configured.");
         }
