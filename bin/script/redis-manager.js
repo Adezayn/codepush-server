@@ -86,35 +86,28 @@ class RedisManager {
     
     constructor() {
         if (process.env.REDIS_HOST && process.env.REDIS_PORT) {
-            const redisNodes = [
-                {
-                    host: process.env.REDIS_HOST,
-                    port: parseInt(process.env.REDIS_PORT)
-                }
-            ];
-    
             const redisOptions = {
+                host: process.env.REDIS_HOST,
+                port: parseInt(process.env.REDIS_PORT || '6379'),
                 password: process.env.REDIS_KEY,
                 tls: {
-                    rejectUnauthorized: true
+                  rejectUnauthorized: true,
                 },
-                showFriendlyErrorStack: true,
-                enableReadyCheck: true,
-                scaleReads: 'slave'
             };
+
+            this.client.on('connect', () => {
+                console.log('[RedisManager] Redis connected ✅');
+              });
+          
+              this.client.on('error', (err) => {
+                console.error('[RedisManager] Redis connection error ❌:', err);
+              });
     
-            this._opsClient = new Redis.Cluster(redisNodes, {
-                redisOptions,
-                slotsRefreshTimeout: 2000,
-                dnsLookup: (address, callback) => callback(null, address)
-            });
-    
-            // 👉 Make metrics client also a cluster client
-            this._metricsClient = new Redis.Cluster(redisNodes, {
-                redisOptions,
-                slotsRefreshTimeout: 2000,
-                dnsLookup: (address, callback) => callback(null, address)
-            });
+                    // Initialize ops client
+            this._opsClient = new Redis(redisOptions);
+
+            // Initialize metrics client
+            this._metricsClient = new Redis(redisOptions);
     
             this._opsClient.on("error", console.error);
             this._metricsClient.on("error", console.error);

@@ -21,7 +21,7 @@ var Promise = q.Promise;
 const request = require("superagent");
 class PackageDiffer {
     static MANIFEST_FILE_NAME = "hotcodepush.json";
-  //  static WORK_DIRECTORY_PATH = env.getTempDirectory();
+    static WORK_DIRECTORY_PATH = "/tmp/package-diff";
     static IS_WORK_DIRECTORY_CREATED = false;
     _storage;
     _maxPackagesToDiff;
@@ -290,13 +290,6 @@ class PackageDiffer {
             isMatchingAppVersion = semver.satisfies(baseAppVersion, newAppVersion);
         }
         return isMatchingAppVersion;
-    }
-    static get WORK_DIRECTORY_PATH() {
-        const path = '/tmp/package-diff';
-        if (!path) {
-            throw new Error("env.getTempDirectory() returned undefined");
-        }
-        return path;
     }
     static ensureWorkDirectoryExists() {
         console.log("WORK_DIRECTORY_PATH:", PackageDiffer.WORK_DIRECTORY_PATH);
