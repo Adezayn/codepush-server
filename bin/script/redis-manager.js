@@ -106,7 +106,7 @@ class RedisManager {
                     // Initialize ops client
             this._opsClient = new Redis(redisOptions);
 
-            // Initialize metrics client
+            // Initialize metrics client:
             this._metricsClient = new Redis(redisOptions);
     
             this._opsClient.on("error", console.error);
