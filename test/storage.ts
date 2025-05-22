@@ -59,7 +59,7 @@ function storageTests(StorageType: new (...args: any[]) => storageTypes.Storage,
           .then(
             failOnCallSucceeded,
             /*returnedUnhealthy*/ () => {
-              if (process.env.EMULATED !== "true" && process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_ACCESS_KEY) {
+              if (!process.env.EMULATED && process.env.AZURE_STORAGE_ACCOUNT && process.env.AZURE_STORAGE_ACCESS_KEY) {
                 return azureStorage.reinitialize(process.env.AZURE_STORAGE_ACCOUNT, process.env.AZURE_STORAGE_ACCESS_KEY);
               } else {
                 return azureStorage.reinitialize();

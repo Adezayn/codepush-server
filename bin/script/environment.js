@@ -4,5 +4,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTempDirectory = getTempDirectory;
 function getTempDirectory() {
-    return '/tmp/package-diff';
+    return process.env.TEMP || process.env.TMPDIR;
 }

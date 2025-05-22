@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RedisManager = exports.Utilities = exports.DOWNLOADED = exports.ACTIVE = exports.DEPLOYMENT_FAILED = exports.DEPLOYMENT_SUCCEEDED = void 0;
 const assert = require("assert");
 const q = require("q");
-const Redis = require("ioredis");
+const redis = require("redis");
 exports.DEPLOYMENT_SUCCEEDED = "DeploymentSucceeded";
 exports.DEPLOYMENT_FAILED = "DeploymentFailed";
 exports.ACTIVE = "Active";
@@ -83,42 +83,32 @@ class RedisManager {
     _metricsClient;
     _promisifiedMetricsClient;
     _setupMetricsClientPromise;
-    
     constructor() {
         if (process.env.REDIS_HOST && process.env.REDIS_PORT) {
-            const redisOptions = {
+            const redisConfig = {
                 host: process.env.REDIS_HOST,
-                port: parseInt(process.env.REDIS_PORT || '6379'),
-                password: process.env.REDIS_KEY,
+                port: process.env.REDIS_PORT,
+                auth_pass: process.env.REDIS_KEY,
                 tls: {
-                  rejectUnauthorized: true,
+                    // Note: Node defaults CA's to those trusted by Mozilla
+                    rejectUnauthorized: true,
                 },
             };
-
-            this.client.on('connect', () => {
-                console.log('[RedisManager] Redis connected ✅');
-              });
-          
-              this.client.on('error', (err) => {
-                console.error('[RedisManager] Redis connection error ❌:', err);
-              });
-    
-                    // Initialize ops client
-            this._opsClient = new Redis(redisOptions);
-
-            // Initialize metrics client:
-            this._metricsClient = new Redis(redisOptions);
-    
-            this._opsClient.on("error", console.error);
-            this._metricsClient.on("error", console.error);
-    
+            this._opsClient = redis.createClient(redisConfig);
+            this._metricsClient = redis.createClient(redisConfig);
+            this._opsClient.on("error", (err) => {
+                console.error(err);
+            });
+            this._metricsClient.on("error", (err) => {
+                console.error(err);
+            });
             this._promisifiedOpsClient = new PromisifiedRedisClient(this._opsClient);
             this._promisifiedMetricsClient = new PromisifiedRedisClient(this._metricsClient);
-    
             this._setupMetricsClientPromise = this._promisifiedMetricsClient
-            .set("metrics:health", "healthy")
-            .catch(console.error);
-        } else {
+                .select(RedisManager.METRICS_DB)
+                .then(() => this._promisifiedMetricsClient.set("health", "health"));
+        }
+        else {
             console.warn("No REDIS_HOST or REDIS_PORT environment variable configured.");
         }
     }

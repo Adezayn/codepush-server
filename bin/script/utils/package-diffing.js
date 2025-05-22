@@ -21,7 +21,7 @@ var Promise = q.Promise;
 const request = require("superagent");
 class PackageDiffer {
     static MANIFEST_FILE_NAME = "hotcodepush.json";
-    static WORK_DIRECTORY_PATH = "/tmp/package-diff";
+    static WORK_DIRECTORY_PATH = env.getTempDirectory();
     static IS_WORK_DIRECTORY_CREATED = false;
     _storage;
     _maxPackagesToDiff;
@@ -291,28 +291,15 @@ class PackageDiffer {
         }
         return isMatchingAppVersion;
     }
-    // static ensureWorkDirectoryExists() {
-    //     console.log("WORK_DIRECTORY_PATH:", PackageDiffer.WORK_DIRECTORY_PATH);
-    //     if (!PackageDiffer.IS_WORK_DIRECTORY_CREATED) {
-    //         if (!fs.existsSync(PackageDiffer.WORK_DIRECTORY_PATH)) {
-    //             fs.mkdirSync(PackageDiffer.WORK_DIRECTORY_PATH);
-    //         }
-    //         // Memoize this check to avoid unnecessary file system access.
-    //         PackageDiffer.IS_WORK_DIRECTORY_CREATED = true;
-    //     }
-    // }
     static ensureWorkDirectoryExists() {
-        console.log("WORK_DIRECTORY_PATH:", PackageDiffer.WORK_DIRECTORY_PATH);
-        if (!PackageDiffer.WORK_DIRECTORY_PATH || typeof PackageDiffer.WORK_DIRECTORY_PATH !== 'string') {
-            throw new Error("Invalid WORK_DIRECTORY_PATH: " + PackageDiffer.WORK_DIRECTORY_PATH);
-        }
         if (!PackageDiffer.IS_WORK_DIRECTORY_CREATED) {
             if (!fs.existsSync(PackageDiffer.WORK_DIRECTORY_PATH)) {
-                fs.mkdirSync(PackageDiffer.WORK_DIRECTORY_PATH, { recursive: true });
+                fs.mkdirSync(PackageDiffer.WORK_DIRECTORY_PATH);
             }
+            // Memoize this check to avoid unnecessary file system access.
             PackageDiffer.IS_WORK_DIRECTORY_CREATED = true;
         }
-    }    
+    }
     static isEntryInMap(name, hash, map, requireContentMatch) {
         const hashInMap = map.get(name);
         return requireContentMatch ? hashInMap === hash : !!hashInMap;
